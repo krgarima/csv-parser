@@ -10,7 +10,13 @@ export type AskQuestionInput = z.infer<typeof AskQuestionSchema>;
 export const AskResponseSpecSchema = z.object({
   chartType: ChartTypeEnum,
   xColumn: z.string().min(1),
-  yColumn: z.string().min(1).nullable(),
+  // Gemini may omit yColumn for count aggregations; tolerate both null and undefined.
+  yColumn: z
+    .string()
+    .min(1)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
   aggregation: AggregationEnum,
 });
 export type AskResponseSpec = z.infer<typeof AskResponseSpecSchema>;
@@ -35,7 +41,13 @@ export const SuggestedQuestionSchema = z.object({
   text: z.string().min(1),
   chartType: ChartTypeEnum,
   xColumn: z.string().min(1),
-  yColumn: z.string().min(1).nullable(),
+  // Gemini may omit yColumn for count aggregations; tolerate both null and undefined.
+  yColumn: z
+    .string()
+    .min(1)
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
   aggregation: AggregationEnum,
 });
 export const SuggestQuestionsResponseSchema = z.object({
