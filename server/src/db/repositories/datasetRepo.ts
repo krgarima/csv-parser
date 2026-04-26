@@ -247,11 +247,14 @@ export class PrismaDatasetRepository implements DatasetRepository {
       LIMIT ${limitParam}
     `;
 
-    type Row = { x: string | null; y: string | number | null };
+    // Postgres returns COUNT(*) as bigint (Prisma surfaces it as JS BigInt),
+    // and SUM/AVG over numeric as a string. Number() coerces all of these to a
+    // plain JS number safely for our aggregation result range (<= 50k rows).
+    type Row = { x: string | null; y: string | number | bigint | null };
     const rows = await this.prisma.$queryRawUnsafe<Row[]>(sql, ...params);
     return rows.map((r) => ({
       x: r.x,
-      y: r.y === null ? 0 : typeof r.y === 'string' ? Number(r.y) : r.y,
+      y: r.y === null ? 0 : Number(r.y),
     }));
   }
 
