@@ -1,13 +1,38 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { listDatasets } from '@/api/datasets';
+import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
+import { listDatasets, uploadDataset } from '@/api/datasets';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export function DatasetList() {
+  const qc = useQueryClient();
+  const [sampleError, setSampleError] = useState<string | null>(null);
+
   const { data: datasets, isLoading } = useQuery({
     queryKey: ['datasets'],
     queryFn: listDatasets,
+  });
+
+  const loadSample = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/sample-sales.csv');
+      if (!res.ok) throw new Error('Could not load sample CSV');
+      const blob = await res.blob();
+      const file = new File([blob], 'sample-sales.csv', { type: 'text/csv' });
+      return uploadDataset({ file, name: 'Sample Sales' });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['datasets'] });
+      setSampleError(null);
+    },
+    onError: (err: { response?: { data?: { error?: { message?: string } } } } | Error) => {
+      const msg =
+        ('response' in err && err.response?.data?.error?.message) ||
+        ('message' in err ? err.message : 'Failed to load sample');
+      setSampleError(msg);
+    },
   });
 
   if (isLoading) {
@@ -17,8 +42,21 @@ export function DatasetList() {
   if (!datasets || datasets.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          No datasets yet. Upload one above to get started.
+        <CardContent className="py-10 flex flex-col items-center gap-3 text-center">
+          <p className="text-sm text-muted-foreground max-w-md">
+            No datasets yet. Upload a CSV above — sales, leads, transactions, anything tabular —
+            and we'll detect column types so you can build charts and ask questions about it.
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => loadSample.mutate()}
+            disabled={loadSample.isPending}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            {loadSample.isPending ? 'Loading sample…' : 'Try the sample sales dataset'}
+          </Button>
+          {sampleError && <p className="text-sm text-destructive">{sampleError}</p>}
         </CardContent>
       </Card>
     );
