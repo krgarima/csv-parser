@@ -121,6 +121,7 @@ export function ChartBuilder({
               { value: 'pie', label: 'Pie' },
             ]}
             onChange={(v) => setSpec((s) => ({ ...s, type: v as ChartType }))}
+            help="Bar for categories, line for trends over time, pie for shares of a whole."
           />
           <FieldSelect
             label="X axis (group by)"
@@ -130,6 +131,7 @@ export function ChartBuilder({
               label: `${c.name} (${c.type})`,
             }))}
             onChange={(v) => setSpec((s) => ({ ...s, xColumn: v }))}
+            help="The column whose values become the buckets along the X axis."
           />
           <FieldSelect
             label="Aggregation"
@@ -148,6 +150,7 @@ export function ChartBuilder({
                 yColumn: v === 'count' ? null : s.yColumn ?? numberColumns[0]?.name ?? null,
               }))
             }
+            help="How to summarize the Y values within each X bucket. 'count' just counts rows."
           />
           {spec.aggregation !== 'count' && (
             <FieldSelect
@@ -157,6 +160,7 @@ export function ChartBuilder({
               placeholder={numberColumns.length === 0 ? 'No numeric columns' : 'Pick a column'}
               onChange={(v) => setSpec((s) => ({ ...s, yColumn: v }))}
               disabled={numberColumns.length === 0}
+              help="The numeric column to aggregate. Must be a number-typed column."
             />
           )}
           <div className="space-y-2">
@@ -206,6 +210,7 @@ function FieldSelect({
   onChange,
   placeholder,
   disabled,
+  help,
 }: {
   label: string;
   value: string;
@@ -213,6 +218,7 @@ function FieldSelect({
   onChange: (v: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  help?: string;
 }) {
   return (
     <div className="space-y-2">
@@ -229,6 +235,7 @@ function FieldSelect({
           ))}
         </SelectContent>
       </Select>
+      {help && <p className="text-xs text-muted-foreground">{help}</p>}
     </div>
   );
 }
