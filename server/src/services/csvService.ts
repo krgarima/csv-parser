@@ -7,7 +7,7 @@ import type {
   TypedRow,
   TypedRowValue,
 } from '@db/repositories/datasetRepo';
-import { TooLargeError, ValidationError } from '@lib/errors';
+import { AppError, TooLargeError, ValidationError } from '@lib/errors';
 import {
   disambiguateHeaders,
   inferColumnType,
@@ -45,16 +45,50 @@ export function createCsvService(config: Config): CsvService {
         while ((record = parser.read() as string[] | null) !== null) {
           rows.push(record);
           if (rows.length > config.MAX_ROWS + 1) {
-            // +1 for header. Throwing stops the stream; caller turns this into a TooLargeError.
+            // +1 for header. Throwing stops the stream; caller surfaces the TooLargeError.
             parser.destroy(new TooLargeError(`CSV exceeds maximum of ${config.MAX_ROWS} rows`));
             return;
           }
         }
       });
-      parser.on('error', reject);
+      parser.on('error', (err) => {
+        // Pass our typed errors through; wrap anything else (csv-parse low-level errors,
+        // malformed quoting, encoding issues) as a 400 with a clear message.
+        if (err instanceof AppError) {
+          reject(err);
+        } else {
+          reject(
+            new ValidationError(
+              `Could not parse as CSV: ${err.message}. Make sure the file is a plain text CSV (UTF-8) with comma delimiters.`,
+            ),
+          );
+        }
+      });
       parser.on('end', () => resolve(rows));
       stream.pipe(parser);
     });
+  }
+
+  function checkLikelyWrongDelimiter(buffer: Buffer): void {
+    // Read the first line. Strip BOM, cap at 8 KB for safety.
+    const head = buffer.subarray(0, 8192).toString('utf8').replace(/^﻿/, '');
+    const firstLine = head.split(/\r?\n/, 1)[0] ?? '';
+    if (firstLine.length === 0) return;
+
+    const commas = (firstLine.match(/,/g) ?? []).length;
+    const semicolons = (firstLine.match(/;/g) ?? []).length;
+    const tabs = (firstLine.match(/\t/g) ?? []).length;
+
+    if (commas === 0 && semicolons >= 2) {
+      throw new ValidationError(
+        'This file looks semicolon-delimited (often the case with European-locale Excel exports). Only comma-delimited CSV is supported — please re-save the file as "CSV (Comma delimited)" and try again.',
+      );
+    }
+    if (commas === 0 && tabs >= 2) {
+      throw new ValidationError(
+        'This file looks tab-delimited (TSV). Only comma-delimited CSV is supported — please re-save as a comma-delimited CSV.',
+      );
+    }
   }
 
   function buildDataset(records: string[][]): ParsedDataset {
@@ -158,6 +192,8 @@ export function createCsvService(config: Config): CsvService {
       if (buffer.length > config.MAX_UPLOAD_BYTES) {
         throw new TooLargeError(`Upload exceeds maximum of ${config.MAX_UPLOAD_BYTES} bytes`);
       }
+      // Catch the most common "wrong format" mistake before we burn cycles parsing.
+      checkLikelyWrongDelimiter(buffer);
       const { Readable } = await import('node:stream');
       const stream = Readable.from(buffer);
       const records = await streamToRows(stream);
