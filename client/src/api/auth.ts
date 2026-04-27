@@ -3,10 +3,15 @@ import { api } from './client';
 export interface User {
   id: string;
   email: string;
+  name: string | null;
   createdAt?: string;
 }
 
-export async function signup(input: { email: string; password: string }): Promise<User> {
+export async function signup(input: {
+  email: string;
+  password: string;
+  name?: string;
+}): Promise<User> {
   const { data } = await api.post('/api/auth/signup', input);
   return data.user as User;
 }

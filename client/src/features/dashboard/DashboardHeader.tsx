@@ -14,7 +14,11 @@ export function DashboardHeader() {
           CSV Analytics
         </Link>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          {user?.email && <span>{user.email}</span>}
+          {user && (
+            <span>
+              Hi, <span className="text-foreground font-medium">{user.name ?? user.email}</span>
+            </span>
+          )}
           <Button variant="ghost" size="sm" onClick={() => logout.mutate()} className="gap-1">
             <LogOut className="h-3.5 w-3.5" />
             Log out

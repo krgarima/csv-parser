@@ -9,10 +9,17 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMe, useSignup } from './useAuth';
 
-const Schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
+const Schema = z
+  .object({
+    name: z.string().trim().min(1, 'Name is required').max(80),
+    email: z.string().email(),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 type FormValues = z.infer<typeof Schema>;
 
 export function SignupPage() {
@@ -23,7 +30,7 @@ export function SignupPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(Schema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
   });
 
   if (isLoading) return null;
@@ -52,6 +59,13 @@ export function SignupPage() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" type="text" autoComplete="name" {...form.register('name')} />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" autoComplete="email" {...form.register('email')} />
               {form.formState.errors.email && (
@@ -63,6 +77,18 @@ export function SignupPage() {
               <Input id="password" type="password" autoComplete="new-password" {...form.register('password')} />
               {form.formState.errors.password && (
                 <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                {...form.register('confirmPassword')}
+              />
+              {form.formState.errors.confirmPassword && (
+                <p className="text-sm text-destructive">{form.formState.errors.confirmPassword.message}</p>
               )}
             </div>
             {serverError && <p className="text-sm text-destructive">{serverError}</p>}
