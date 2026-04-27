@@ -17,7 +17,11 @@ export interface AuthTokens {
 }
 
 export interface AuthService {
-  signup(input: { email: string; password: string }): Promise<{ userId: string; tokens: AuthTokens }>;
+  signup(input: {
+    email: string;
+    password: string;
+    name?: string;
+  }): Promise<{ userId: string; tokens: AuthTokens }>;
   login(input: { email: string; password: string }): Promise<{ userId: string; tokens: AuthTokens }>;
   refresh(refreshToken: string): Promise<AuthTokens>;
   logout(refreshToken: string): Promise<void>;
@@ -98,7 +102,11 @@ export function createAuthService(input: {
         throw new ConflictError('An account with that email already exists');
       }
       const passwordHash = await bcrypt.hash(input.password, BCRYPT_COST);
-      const user = await userRepo.create({ email: normalized, passwordHash });
+      const user = await userRepo.create({
+        email: normalized,
+        passwordHash,
+        name: input.name?.trim() || null,
+      });
       const tokens = await issueTokens(user.id);
       return { userId: user.id, tokens };
     },

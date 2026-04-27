@@ -51,7 +51,14 @@ export function createAuthRouter(input: {
       const body = SignupSchema.parse(req.body);
       const { userId, tokens } = await authService.signup(body);
       setAuthCookies(res, tokens, config);
-      res.status(201).json({ user: { id: userId, email: body.email.toLowerCase().trim() } });
+      const user = await userRepo.findById(userId);
+      res.status(201).json({
+        user: {
+          id: userId,
+          email: body.email.toLowerCase().trim(),
+          name: user?.name ?? null,
+        },
+      });
     } catch (err) {
       next(err);
     }
@@ -62,7 +69,14 @@ export function createAuthRouter(input: {
       const body = LoginSchema.parse(req.body);
       const { userId, tokens } = await authService.login(body);
       setAuthCookies(res, tokens, config);
-      res.json({ user: { id: userId, email: body.email.toLowerCase().trim() } });
+      const user = await userRepo.findById(userId);
+      res.json({
+        user: {
+          id: userId,
+          email: body.email.toLowerCase().trim(),
+          name: user?.name ?? null,
+        },
+      });
     } catch (err) {
       next(err);
     }
@@ -97,7 +111,9 @@ export function createAuthRouter(input: {
     try {
       const user = await userRepo.findById(req.userId!);
       if (!user) throw new UnauthorizedError('User not found');
-      res.json({ user: { id: user.id, email: user.email, createdAt: user.createdAt } });
+      res.json({
+        user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
+      });
     } catch (err) {
       next(err);
     }
