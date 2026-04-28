@@ -1,0 +1,164 @@
+Take-Home Project: Lightweight
+Data Analytics SaaS
+
+Duration: 4 days building + 1 day for docs and video
+Submission: Reply to this email with your GitHub repo link and live URL by April
+17th
+
+Overview
+Build a lightweight web app where users can upload their own data, define what
+
+they want to track, and view it as a personalised dashboard with charts and AI-
+powered insights.
+
+Think of it as a stripped-down Mixpanel or Amplitude — built from scratch by you.
+This is intentionally open-ended. I'm not evaluating whether you built every
+feature. I'm evaluating how you think, the decisions you make, and the quality of
+what you ship.
+
+The User Journey
+1. User signs up and lands on an empty personal dashboard
+2. User uploads a CSV file (e.g. sales data, leads, transactions — any tabular
+data)
+3. App parses the file, detects column names and data types (number, date, text)
+4. User selects which columns to visualise — e.g. "revenue by month" or "leads
+by source"
+5. Dashboard renders charts based on their selections
+6. User can save their dashboard and return to it in a future session
+7. User can trigger an AI-generated insight about their data
+
+What You Must Build
+
+Take-Home Project: Lightweight Data Analytics SaaS 1
+
+Authentication
+Sign up and log in
+Each user has their own private workspace — data is never shared across
+users
+CSV Upload & Parsing
+Accept CSV file upload
+Parse server-side — detect column names and infer data types (number, date,
+text)
+Handle basic errors gracefully — malformed CSV, empty files, missing
+headers
+Chart Builder
+User selects X axis, Y axis, and chart type (at minimum: bar, line, pie)
+App renders the chart based on their selection
+User can change selections and update the chart
+Dashboard
+User can save up to 3 charts to their dashboard
+Dashboard persists across sessions — reloading the page shows the same
+charts
+Charts are scoped to the user's uploaded data
+AI Feature
+Integrate an LLM API (OpenAI, Anthropic, or any other)
+What the AI feature does is your decision — pick something that adds
+genuine value to the user
+Document why you chose it
+Deployment
+
+Take-Home Project: Lightweight Data Analytics SaaS 2
+
+Must be deployed and accessible via a public URL
+Must work without any setup on my end
+
+What's Left Open (Intentionally)
+The following are not specified on purpose. Make a decision, implement it, and
+explain your reasoning in the README:
+How is uploaded CSV data stored in the database — raw file, parsed rows, or
+aggregated results?
+How are aggregations computed — in the database or in application code?
+What happens if a user uploads a second CSV — does it replace or append?
+How does your system behave with a CSV that has 50,000 rows?
+What AI feature did you choose to build and why?
+There are no right answers here. I want to see that you can identify trade-offs and
+make a reasoned call.
+
+Constraints
+Frontend: React
+Backend: Node.js
+Database: Your choice — use what you know best
+No no-code or low-code backends — no Firebase, Supabase, or similar. I
+want to see your backend thinking.
+You can use any open-source libraries, UI frameworks, and charting libraries
+LLM API of your choice for the AI feature
+Spend 4 days building — keep the 5th day for documentation, video, and
+cleanup
+
+Deliverables
+
+Take-Home Project: Lightweight Data Analytics SaaS 3
+
+1. GitHub Repository
+Clean commit history — I want to see how you worked, not just the end result
+Please don't submit one giant commit at the end
+2. Live Deployed URL
+Must be accessible without any credentials or setup from my side
+3. README — this is as important as the code
+Your README should cover:
+How to run locally
+Step-by-step instructions to run the project on a fresh machine.
+Architecture overview
+What did you build and how is it structured? A simple diagram is welcome but not
+required.
+Key decisions
+For each open-ended decision listed above, document what you chose and why.
+Be honest about trade-offs — I value clear thinking over perfect answers.
+What you would improve
+If you had more time, what would you fix or refactor? Be specific — not "better
+error handling" but what, where, and how.
+Product roadmap
+This section matters a lot to me. Answer these three questions:
+What would you build next? — List 3 to 5 features or enhancements. For each,
+briefly explain what user problem it solves and why it matters.
+What architectural changes would those features require? — How would your
+current system need to evolve to support them?
+If this were a real SaaS product, what would make users pay for it? — Think
+about value, not just features.
+4. Loom Video (5–10 minutes)
+Walk me through:
+
+Take-Home Project: Lightweight Data Analytics SaaS 4
+
+A live demo of the working app
+Your architecture and the key decisions you made
+Your product roadmap — what you'd build next and why
+One thing you'd do completely differently if you started over
+
+What I'm Looking At
+Area What I'm looking for
+Technical decisions Are your architectural choices sensible and well-reasoned?
+Code quality Is the code readable, modular, and maintainable?
+End-to-end ownership Does it work in production, not just locally?
+Edge case handling Did you think beyond the happy path?
+AI integration Did you use AI thoughtfully or just bolt it on?
+Product thinking Does your roadmap show you think beyond just building features?
+Communication Is your README and Loom clear, honest, and well-structured?
+
+A Few Things I'm Not Looking For
+Pixel-perfect UI — working and thoughtful beats beautiful and broken
+Every feature implemented — a focused, well-built subset beats a sprawling
+broken app
+A roadmap full of obvious features — I want to see genuine product thinking
+Code you can't explain — be ready to walk through any part of your
+submission in a follow-up call
+
+A Few Tips
+Start with your data model — get the schema right before writing a single API
+Ship something working early — a deployed basic version on day 2 is better
+than a perfect local version on day 4
+
+Take-Home Project: Lightweight Data Analytics SaaS 5
+
+The README and Loom are not afterthoughts — they're part of the evaluation
+If something is genuinely unclear, just email me — asking a good question is
+not a weakness
+
+Submission
+Send your GitHub repo link and deployed URL to prashanth@vyzma.ai.
+I'll schedule a 1-hour technical review session with the team member. This is not
+another interview — it's a conversation about what you built.
+We'll go through your code together, discuss the decisions you made, and explore
+how you'd take it further. Come prepared to walk through any part of your
+submission and think out loud about what comes next.
+Good luck — looking forward to seeing what you build.
