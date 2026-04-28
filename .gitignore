@@ -42,3 +42,9 @@ Thumbs.db
 .turbo/
 .claude/
 .plans/
+
+# Local testing artifacts (curl cookies jar, datasetId.txt, etc.)
+cookies.txt
+datasetId.txt
+*.cookies
+*.tmp
