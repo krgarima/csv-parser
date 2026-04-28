@@ -4,6 +4,7 @@ import { z } from 'zod';
 import type { ChartService } from '@services/chartService';
 import type { AggregationService } from '@services/aggregationService';
 import { ChartCreateSchema, ChartUpdateSchema, AggregationEnum, ChartTypeEnum } from '@schemas/chart';
+import { previewLimiter } from '@middleware/rateLimit';
 
 export function createChartsRouter(input: {
   chartService: ChartService;
@@ -31,7 +32,7 @@ export function createChartsRouter(input: {
     aggregation: AggregationEnum,
   });
 
-  router.post('/preview', async (req, res, next) => {
+  router.post('/preview', previewLimiter, async (req, res, next) => {
     try {
       const body = PreviewSchema.parse(req.body);
       const buckets = await aggregationService.runSpec({

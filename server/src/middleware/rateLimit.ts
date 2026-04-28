@@ -23,3 +23,23 @@ export const uploadLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: { code: 'RATE_LIMITED', message: 'Upload rate limit reached.' } },
 });
+
+// Refresh tokens are 48 random bytes (cryptographically infeasible to brute-force),
+// but rate-limiting is defense in depth and protects the DB from token-guessing storms.
+export const refreshLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Refresh rate limit reached.' } },
+});
+
+// Chart preview re-runs aggregation on every selection change. Cap to protect
+// Postgres compute on Neon free tier from abuse by an authenticated user.
+export const previewLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Preview rate limit reached.' } },
+});
