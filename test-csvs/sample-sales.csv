@@ -1,0 +1,13 @@
+order_date,product,region,quantity,revenue
+2025-01-05,Widget,North,12,360.00
+2025-01-12,Gadget,South,5,99.95
+2025-01-19,Doohickey,East,8,160.00
+2025-02-02,Widget,West,20,600.00
+2025-02-09,Gadget,North,7,139.93
+2025-02-16,Doohickey,South,15,300.00
+2025-03-04,Widget,East,3,90.00
+2025-03-11,Gadget,West,12,239.88
+2025-03-18,Doohickey,North,9,180.00
+2025-04-01,Widget,South,18,540.00
+2025-04-08,Gadget,East,4,79.96
+2025-04-15,Doohickey,West,25,500.00

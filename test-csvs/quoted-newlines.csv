@@ -1,0 +1,5 @@
+customer,note,amount
+"Acme, Inc.","First line
+Second line",1200
+"Beta Co","Single line, with comma",450
+"Gamma LLC","Plain note",75
