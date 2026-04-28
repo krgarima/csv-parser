@@ -201,7 +201,22 @@ export function createCsvService(config: Config): CsvService {
     },
 
     async parseStream(stream) {
-      const records = await streamToRows(stream);
+      // Accumulate to a buffer first so we can run the same delimiter +
+      // size checks as parseBuffer. We're already capped by MAX_UPLOAD_BYTES.
+      const chunks: Buffer[] = [];
+      let total = 0;
+      for await (const chunk of stream) {
+        const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string);
+        total += buf.length;
+        if (total > config.MAX_UPLOAD_BYTES) {
+          throw new TooLargeError(`Upload exceeds maximum of ${config.MAX_UPLOAD_BYTES} bytes`);
+        }
+        chunks.push(buf);
+      }
+      const buffer = Buffer.concat(chunks);
+      checkLikelyWrongDelimiter(buffer);
+      const { Readable } = await import('node:stream');
+      const records = await streamToRows(Readable.from(buffer));
       return buildDataset(records);
     },
   };
