@@ -12,6 +12,9 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  * The cookie is intentionally NOT httpOnly — JS reads it to attach the header.
  */
 export function csrfMiddleware(input: { cookieDomain: string; secure: boolean }): RequestHandler {
+  // Same SameSite logic as auth cookies: None in prod (cross-origin), Lax in dev.
+  const sameSite = input.secure ? ('none' as const) : ('lax' as const);
+
   return (req, res, next) => {
     let token = req.cookies?.[CSRF_COOKIE] as string | undefined;
     if (!token) {
@@ -19,7 +22,7 @@ export function csrfMiddleware(input: { cookieDomain: string; secure: boolean })
       res.cookie(CSRF_COOKIE, token, {
         httpOnly: false,
         secure: input.secure,
-        sameSite: 'lax',
+        sameSite,
         domain: input.cookieDomain || undefined,
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,

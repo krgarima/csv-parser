@@ -5,17 +5,22 @@ import type { AuthService, AuthTokens } from '@services/authService';
 import type { UserRepository } from '@db/repositories/userRepo';
 import { LoginSchema, SignupSchema } from '@schemas/auth';
 import { ACCESS_COOKIE, REFRESH_COOKIE } from '@middleware/requireAuth';
-import { loginLimiter } from '@middleware/rateLimit';
+import { loginLimiter, refreshLimiter } from '@middleware/rateLimit';
 import { UnauthorizedError } from '@lib/errors';
 
 function setAuthCookies(res: Response, tokens: AuthTokens, config: Config): void {
   const secure = config.NODE_ENV === 'production';
   const domain = config.COOKIE_DOMAIN || undefined;
+  // In production the client (Vercel) and API (Render) live on different origins;
+  // SameSite=Lax would block the cookies on cross-site fetches. SameSite=None
+  // requires Secure, which is true in prod over HTTPS. In dev (localhost via Vite
+  // proxy) the request is same-origin to the browser, so Lax works fine.
+  const sameSite = secure ? ('none' as const) : ('lax' as const);
 
   res.cookie(ACCESS_COOKIE, tokens.accessToken, {
     httpOnly: true,
     secure,
-    sameSite: 'lax',
+    sameSite,
     domain,
     path: '/',
     // Access cookie expires when the JWT does — but we leave maxAge unset so
@@ -24,7 +29,7 @@ function setAuthCookies(res: Response, tokens: AuthTokens, config: Config): void
   res.cookie(REFRESH_COOKIE, tokens.refreshToken, {
     httpOnly: true,
     secure,
-    sameSite: 'lax',
+    sameSite,
     domain,
     path: '/api/auth',
     expires: tokens.refreshExpiresAt,
@@ -82,7 +87,7 @@ export function createAuthRouter(input: {
     }
   });
 
-  router.post('/refresh', async (req, res, next) => {
+  router.post('/refresh', refreshLimiter, async (req, res, next) => {
     try {
       const refresh = req.cookies?.[REFRESH_COOKIE] as string | undefined;
       if (!refresh) throw new UnauthorizedError('No refresh token');
