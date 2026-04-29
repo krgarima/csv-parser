@@ -17,17 +17,16 @@
     "noFallthroughCasesInSwitch": true,
     "noPropertyAccessFromIndexSignature": false,
 
-    "baseUrl": "./src",
     "paths": {
-      "@config/*": ["config/*"],
-      "@db/*": ["db/*"],
-      "@llm/*": ["llm/*"],
-      "@mail/*": ["mail/*"],
-      "@services/*": ["services/*"],
-      "@routes/*": ["routes/*"],
-      "@middleware/*": ["middleware/*"],
-      "@lib/*": ["lib/*"],
-      "@schemas/*": ["schemas/*"]
+      "@config/*": ["./src/config/*"],
+      "@db/*": ["./src/db/*"],
+      "@llm/*": ["./src/llm/*"],
+      "@mail/*": ["./src/mail/*"],
+      "@services/*": ["./src/services/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@schemas/*": ["./src/schemas/*"]
     },
 
     "outDir": "dist",
