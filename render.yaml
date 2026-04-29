@@ -5,7 +5,10 @@ services:
     rootDir: server
     plan: free
     region: oregon
-    buildCommand: npm ci && npx prisma generate && npm run build && npx prisma migrate deploy
+    # --include=dev forces devDependencies (typescript, @types/node, prisma CLI)
+    # to install even though NODE_ENV=production is set. Runtime uses node directly,
+    # so devDeps aren't needed after the build completes.
+    buildCommand: npm ci --include=dev && npx prisma generate && npm run build && npx prisma migrate deploy
     startCommand: node dist/index.js
     healthCheckPath: /api/health
     envVars:
