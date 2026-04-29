@@ -12,38 +12,55 @@ save up to three to a dashboard, and ask AI questions about your data.
 
 ## Quickstart (fresh machine in <5 minutes)
 
-Prereqs: Node 20+, Docker (for local Postgres), npm.
+Prereqs: Node 20+, npm. (No Docker required.)
+
+You'll also need a **Postgres database**. The recommended path is a free Neon
+account — it takes ~2 minutes and the same database can be used for local dev
+and production. If you'd prefer to run Postgres locally with Docker instead,
+see the alternative at the bottom of this section.
 
 ```bash
 git clone <repo-url> && cd csv
 
-# 1. Local Postgres
-docker compose up -d
+# 1) Get a free Postgres URL from https://neon.tech
+#    Sign up → create a project (any name) → copy the "Pooled connection" string.
 
-# 2. Server
+# 2) Server
 cd server
 cp .env.example .env
-# Generate token secrets:
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"  # use as ACCESS_TOKEN_SECRET
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"  # use as REFRESH_TOKEN_SECRET
-# For LLM_API_KEY get a free Gemini key: https://aistudio.google.com/apikey
-# (or set LLM_PROVIDER=mock to skip AI and run offline)
+# Edit .env and set:
+#   DATABASE_URL          → the Neon connection string from step 1
+#   ACCESS_TOKEN_SECRET   → run: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+#   REFRESH_TOKEN_SECRET  → run that command again, paste a different output
+#   LLM_API_KEY           → free Gemini key from https://aistudio.google.com/apikey
+#                           OR set LLM_PROVIDER=mock to run offline without an AI key
 npm install
-npx prisma migrate dev --name init
+npx prisma migrate deploy
 npm run dev
 
-# 3. Client (separate terminal)
+# 3) Client (separate terminal)
 cd ../client
-cp .env.example .env   # leave VITE_API_URL empty for dev (vite proxy handles it)
+cp .env.example .env       # leave VITE_API_URL empty for dev (vite proxy handles it)
 npm install
 npm run dev
 
 # Open http://localhost:5173
 ```
 
-To verify: sign up, upload `test-csvs/sample-sales.csv`, build a "sum of
-revenue by region" bar chart, save it, log out, log back in — the chart
-should still be there.
+To verify: sign up, click **"Try the sample sales dataset"** on the empty
+dashboard, build a "sum of revenue by region" bar chart, save it, log out,
+log back in — the chart should still be there.
+
+### Alternative: local Postgres via Docker
+
+If you prefer not to use Neon, the repo includes a `docker-compose.yml` for
+a local Postgres instance:
+
+```bash
+docker compose up -d
+# In server/.env set DATABASE_URL=postgresql://csv:csv@localhost:5433/csv
+cd server && npm install && npx prisma migrate deploy && npm run dev
+```
 
 ---
 
