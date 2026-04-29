@@ -70,8 +70,8 @@ export function createCsvService(config: Config): CsvService {
   }
 
   function checkLikelyWrongDelimiter(buffer: Buffer): void {
-    // Read the first line. Strip BOM, cap at 8 KB for safety.
-    const head = buffer.subarray(0, 8192).toString('utf8').replace(/^﻿/, '');
+    // Read the first line. Strip BOM (U+FEFF), cap at 8 KB for safety.
+    const head = buffer.subarray(0, 8192).toString('utf8').replace(/^\uFEFF/, '');
     const firstLine = head.split(/\r?\n/, 1)[0] ?? '';
     if (firstLine.length === 0) return;
 
